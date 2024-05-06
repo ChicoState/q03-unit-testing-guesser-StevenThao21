@@ -14,8 +14,29 @@ using std::string;
   the secret; in other words, if m_secret has a 10 characters and the guess
   has 100, the distance is 10.
 */
-unsigned int Guesser::distance(string guess){
-  return 0;
+unsigned int Guesser::distance(string guess)
+{
+  // Set the distance counter to 0
+  unsigned int distance = 0;
+  // Get the length of the secret and the guess
+  size_t secret_length = m_secret.length();
+  size_t guess_length = guess.length();
+  // Get the minimum length of the two strings
+  size_t min_length = std::min(secret_length, guess_length);
+
+  // Iterate through the strings, comparing each character
+  for (size_t i = 0; i < min_length; i++)
+  {
+    if (m_secret[i] != guess[i])
+    {
+      distance++;
+    }
+  }
+
+  // If the secret is longer than the guess, add the difference in length
+  distance += (secret_length > guess_length) ? (secret_length - guess_length) : (guess_length - secret_length);
+
+  return distance;
 }
 
 /*
@@ -24,14 +45,17 @@ unsigned int Guesser::distance(string guess){
   of any Guesser object and must have a length of 32 characters or less,
   otherwise, it will be truncated at that length.
 */
-Guesser::Guesser(string secret){
-
+Guesser::Guesser(string secret)
+{
+  m_secret = secret.substr(0, 32);
+  m_remaining = 3;
+  // m_locked = false;
 }
 
 /*
   Determines and returns whether the provided guess matches the secret
   phrase. However, the function also returns false if the secret is locked,
-  which happens if either (or both): 
+  which happens if either (or both):
     (A) there are no remaining guesses allowed
     (B) the function detects brute force, as indicated by a guess that has a
         distance greater than 2 from the secret
@@ -39,8 +63,33 @@ Guesser::Guesser(string secret){
   determining how many guesses are remaining and the distance between a guess
   and the secret.
 */
-bool Guesser::match(string guess){
-  return true;
+bool Guesser::match(string guess)
+{
+  // Check if there is any guesses left
+  // If not return false
+  if (m_remaining == 0)
+  {
+    return false;
+  }
+  else if (distance(guess) > 2)
+  {
+    return false;
+  }
+
+  // if the guess match the secret
+  if (guess == m_secret)
+  {
+    m_remaining = 3;
+    return true;
+  }
+  else
+  {
+    // If the guess doesn't match decrement the remaining value
+    m_remaining--;
+    return false;
+  }
+
+  return false;
 }
 
 /*
@@ -50,7 +99,7 @@ bool Guesser::match(string guess){
   an unlocked secret is guessed with a true match, the guesses remaining
   reset to three (3).
 */
-unsigned int Guesser::remaining(){
-  return 0;
+unsigned int Guesser::remaining()
+{
+  return m_remaining;
 }
-
